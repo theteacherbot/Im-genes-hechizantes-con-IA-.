@@ -1,0 +1,5 @@
+﻿Función,Descripción
+**ControlNet types**,"`lineart`, `depth`, `canny`, `openpose`, `ip-adapter`, `reference_only`"
+**Múltiples referencias**,Combinar Iglesia + Estación + Locomotoras
+**Pesos ajustables**,Controlar fidelidad vs creatividad
+**API local**,Conecta a AUTOMATIC1111/Forge en `localhost:7860`

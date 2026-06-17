@@ -1,0 +1,13 @@
+﻿Requisito,Implementación
+**Selector de estilo**,"8 opciones: fantasía cinematográfica, acuarela artística, surrealismo, arte cyberpunk, realismo mágico, pintura al óleo, anime detallado, arte de papel recortado"
+**Cuadro de texto animal**,Input editable con valor por defecto
+**Selector de modelos**,"10 opciones: flux, zimage, klein, grok-imagine, nanobanana, gptimage, gptimage-large, wan-image, qwen-image, gpt-image-2"
+**Método POST**,`fetch()` a `https://gen.pollinations.ai/v1/images/generations`
+**Estructura del prompt**,"JSON con prompt, negative prompt, style, lighting, mood, color\_palette, artista\_references"
+**API Key segura**,`README_BYOP.md` con instrucciones para `localStorage`
+**Controles izquierda**,Panel completo con todos los controles
+**Canvas derecha**,Lienzo 1:1 (aspect-ratio: 1/1)
+**Botón generar**,✨ Generar Imagen
+**Botón descargar**,⬇️ Descargar Imagen (aparece tras generar)
+**Responsive**,Flexbox que se apila en móvil (< 900px)
+**Prompt editable**,Textarea con estructura JSON completa
