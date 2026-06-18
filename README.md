@@ -1,6 +1,6 @@
-# 🎨 Generador de Imágenes - Cisneros Turismo
+# 🎨 Generador de Carteles publicitarios hechizantes-
 
-> **App generadora de imágenes con IA** para promocionar los tesoros turísticos de Cisneros, Antioquia, Colombia.
+> **App generadora de carteles publicitarios con IA**.
 > 
 > Desarrollado por **Uni2 X Cisneros** | *"Historia, cultura y naturaleza para el mundo"*
 
