@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carteles publicitarios con IA · Publicable v6</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #081120;
+      --panel: #0d1a2e;
+      --panel-soft: #0a1628;
+      --cyan: #00D9FF;
+      --cyan-soft: rgba(0, 217, 255, 0.11);
+      --gold: #FFD700;
+      --text: #ffffff;
+      --muted: rgba(255, 255, 255, 0.68);
+      --line: rgba(0, 217, 255, 0.18);
+      --danger: #ff6b6b;
+      --ok: #00ff88;
+      --warn: #ffca5c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(0, 217, 255, 0.11), transparent 34rem),
+        radial-gradient(circle at bottom left, rgba(255, 215, 0, 0.08), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s, background 0.18s;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.62;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .controls {
+      width: 460px;
+      min-width: 460px;
+      max-height: 100vh;
+      overflow-y: auto;
+      padding: 1.35rem;
+      background: rgba(13, 26, 46, 0.96);
+      border-right: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+
+    .stage {
+      position: relative;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 2rem;
+    }
+
+    .brand {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--line);
+      text-align: center;
+    }
+
+    h1 {
+      color: var(--cyan);
+      font-family: Montserrat, Inter, sans-serif;
+      font-size: 1.28rem;
+      line-height: 1.24;
+    }
+
+    .subtitle {
+      margin-top: 0.34rem;
+      color: var(--gold);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .card {
+      margin-bottom: 1rem;
+      padding: 0.92rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(0, 217, 255, 0.052);
+    }
+
+    .group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.42rem;
+      color: var(--cyan);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.72rem 0.82rem;
+      border: 2px solid rgba(0, 217, 255, 0.2);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.9rem;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--cyan);
+      outline: 0;
+      box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      background: var(--panel-soft);
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
+
+    .hint {
+      margin-top: 0.38rem;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.45;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    input[type="range"] {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      accent-color: var(--cyan);
+    }
+
+    .range-value {
+      min-width: 3.2rem;
+      color: var(--gold);
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .status {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.77rem;
+      line-height: 1.4;
+    }
+
+    .status.ok { color: var(--ok); }
+    .status.warn { color: var(--warn); }
+    .status.bad { color: var(--danger); }
+
+    .row,
+    .key-row {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .key-row input {
+      flex: 1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.03em;
+    }
+
+    .btn-small {
+      padding: 0.66rem 0.78rem;
+      border: 1px solid rgba(0, 217, 255, 0.32);
+      background: var(--cyan-soft);
+      color: var(--cyan);
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      width: 100%;
+      margin: 0.25rem 0 0.65rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #00D9FF, #0088cc);
+      color: #06101d;
+      font-size: 1rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .btn-gold {
+      display: none;
+      width: 100%;
+      padding: 0.86rem;
+      background: var(--gold);
+      color: #06101d;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .btn-gold.active {
+      display: block;
+    }
+
+    .two-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.68rem;
+    }
+
+    .mode-tabs,
+    .preset-list,
+    .key-buttons {
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .mode-tabs {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .key-buttons {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .mode-btn,
+    .preset-btn {
+      width: 100%;
+      padding: 0.72rem;
+      border: 1px solid rgba(0, 217, 255, 0.3);
+      background: var(--cyan-soft);
+      color: var(--cyan);
+      font-size: 0.82rem;
+    }
+
+    .mode-btn.active,
+    .preset-btn.active {
+      background: var(--cyan);
+      color: #06101d;
+    }
+
+    .counter {
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .counter.warn { color: var(--warn); }
+    .counter.bad { color: var(--danger); }
+
+    .upload {
+      padding: 1.1rem;
+      border: 2px dashed rgba(0, 217, 255, 0.32);
+      border-radius: 12px;
+      background: rgba(0, 217, 255, 0.035);
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.18s, border-color 0.18s;
+    }
+
+    .upload:hover,
+    .upload.dragover {
+      border-color: var(--cyan);
+      background: rgba(0, 217, 255, 0.065);
+    }
+
+    .thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.65rem;
+    }
+
+    .thumb {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      overflow: hidden;
+      border: 2px solid rgba(0, 217, 255, 0.3);
+      border-radius: 9px;
+      background: #111827;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .remove-thumb {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ff4444;
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .canvas {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: min(78vh, 780px);
+      max-width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      border: 2px solid rgba(0, 217, 255, 0.22);
+      border-radius: 18px;
+      background: rgba(13, 26, 46, 0.9);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+    }
+
+    .placeholder {
+      padding: 2rem;
+      color: rgba(0, 217, 255, 0.5);
+      text-align: center;
+    }
+
+    .placeholder svg {
+      width: 74px;
+      height: 74px;
+      margin-bottom: 1rem;
+      opacity: 0.56;
+    }
+
+    .placeholder p {
+      font-weight: 800;
+    }
+
+    .generated {
+      display: none;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .generated.active {
+      display: block;
+    }
+
+    .loading {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8, 17, 32, 0.92);
+    }
+
+    .loading.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 1rem;
+      border: 4px solid rgba(0, 217, 255, 0.2);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.55rem 0.9rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(0, 217, 255, 0.1);
+      color: var(--cyan);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .message {
+      display: none;
+      margin-top: 0.75rem;
+      padding: 0.85rem;
+      border-radius: 11px;
+      border: 1px solid rgba(255, 0, 0, 0.34);
+      background: rgba(255, 0, 0, 0.085);
+      color: var(--danger);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .message.active {
+      display: block;
+    }
+
+    .credits {
+      max-width: 780px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .credits a {
+      color: var(--cyan);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        flex-direction: column;
+      }
+
+      .controls {
+        width: 100%;
+        min-width: 0;
+        max-height: none;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .stage {
+        padding: 1rem;
+      }
+
+      .badge {
+        position: static;
+        align-self: center;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .two-cols,
+      .mode-tabs,
+      .key-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="controls">
+      <header class="brand">
+        <h1>Carteles publicitarios hechIzAntes</h1>
+        <div class="subtitle">Herramienta creadora de carteles publicitarios con IA</div>
+      </header>
+
+      <section class="card" aria-labelledby="api-title">
+        <label id="api-title">API Key de Pollinations</label>
+        <div class="key-row">
+          <input type="password" id="apiKey" placeholder="Introduce tu API key pk_ o sk_" autocomplete="off" />
+          <button class="btn-small" id="showKeyBtn" type="button">👁️ Ver</button>
+        </div>
+        <div id="keyStatus" class="status">No configurada.</div>
+        <div class="key-buttons" style="margin-top:0.65rem">
+          <button class="btn-small" id="saveKeyBtn" type="button">Guardar key</button>
+          <button class="btn-small" id="testKeyBtn" type="button">Comprobar key</button>
+          <button class="btn-small" id="clearKeyBtn" type="button">Borrar key</button>
+        </div>
+        <div class="status warn">En equipos compartidos, pulsa “Borrar key” al terminar.</div>
+      </section>
+
+      <div class="mode-tabs" role="tablist" aria-label="Modo de generación">
+        <button class="mode-btn active" id="textModeBtn" type="button">Texto a imagen</button>
+        <button class="mode-btn" id="editModeBtn" type="button">Imagen a imagen</button>
+      </div>
+
+      <div class="group">
+        <label>Presets</label>
+        <div class="preset-list">
+          <button class="preset-btn active" data-preset="cisneros" type="button">Cartel Cisneros</button>
+          <button class="preset-btn" data-preset="custom" type="button">Personalizado</button>
+        </div>
+      </div>
+
+      <div class="two-cols">
+        <div class="group">
+          <label for="style">Estilo</label>
+          <select id="style">
+            <option value="photorealistic">Photorealistic</option>
+            <option value="cinematic" selected>Cinematic</option>
+            <option value="hyperrealistic">Hyperrealistic</option>
+            <option value="ultra_detailed">Ultra Detailed</option>
+            <option value="fantasy_art">Fantasy Art</option>
+            <option value="epic_fantasy">Epic Fantasy</option>
+            <option value="dark_fantasy">Dark Fantasy</option>
+            <option value="concept_art">Concept Art</option>
+            <option value="digital_painting">Digital Painting</option>
+            <option value="matte_painting">Matte Painting</option>
+            <option value="oil_painting">Oil Painting</option>
+            <option value="watercolor">Watercolor</option>
+            <option value="acrylic_painting">Acrylic Painting</option>
+            <option value="charcoal_sketch">Charcoal Sketch</option>
+            <option value="pencil_drawing">Pencil Drawing</option>
+            <option value="ink_illustration">Ink Illustration</option>
+            <option value="comic_book">Comic Book</option>
+            <option value="graphic_novel">Graphic Novel</option>
+            <option value="anime">Anime</option>
+            <option value="manga">Manga</option>
+            <option value="ghibli">Studio Ghibli</option>
+            <option value="pixar">Pixar Style</option>
+            <option value="disney">Disney Style</option>
+            <option value="cartoon">Cartoon</option>
+            <option value="3d_render">3D Render</option>
+            <option value="isometric">Isometric</option>
+            <option value="low_poly">Low Poly</option>
+            <option value="voxel_art">Voxel Art</option>
+            <option value="cyberpunk">Cyberpunk</option>
+            <option value="steampunk">Steampunk</option>
+            <option value="sci_fi">Sci-Fi</option>
+            <option value="futuristic">Futuristic</option>
+            <option value="retrofuturism">Retrofuturism</option>
+            <option value="vaporwave">Vaporwave</option>
+            <option value="synthwave">Synthwave</option>
+            <option value="minimalist">Minimalist</option>
+            <option value="luxury_editorial">Luxury Editorial</option>
+            <option value="apple_minimal">Apple Minimal</option>
+            <option value="modern">Modern</option>
+            <option value="contemporary">Contemporary</option>
+            <option value="art_deco">Art Deco</option>
+            <option value="baroque">Baroque</option>
+            <option value="victorian">Victorian</option>
+            <option value="gothic">Gothic</option>
+            <option value="renaissance">Renaissance</option>
+            <option value="surrealism">Surrealism</option>
+            <option value="abstract">Abstract</option>
+            <option value="pop_art">Pop Art</option>
+            <option value="neon_art">Neon Art</option>
+            <option value="street_art">Street Art</option>
+            <option value="graffiti">Graffiti</option>
+            <option value="poster_design">Poster Design</option>
+            <option value="advertising">Advertising Campaign</option>
+            <option value="travel_poster">Travel Poster</option>
+            <option value="vintage_poster">Vintage Poster</option>
+            <option value="retro">Retro</option>
+            <option value="vintage">Vintage</option>
+            <option value="tropical_luxury">Tropical Luxury</option>
+            <option value="bohemian">Bohemian</option>
+            <option value="rustic">Rustic</option>
+            <option value="nature_inspired">Nature Inspired</option>
+            <option value="magical_realism">Magical Realism</option>
+          </select>
+        </div>
+        <div class="group">
+          <label for="model">Modelo</label>
+          <select id="model">
+            <option value="zimage" selected>ZImage · recomendado</option>
+            <option value="flux">Flux</option>
+            <option value="gptimage">GPTImage</option>
+            <option value="gptimage-large">GPTImage-Large</option>
+            <option value="gpt-image-2">GPT-Image-2</option>
+            <option value="kontext">Kontext · edición</option>
+            <option value="seedream">Seedream · edición</option>
+            <option value="nanobanana">Nanobanana · edición</option>
+            <option value="klein">Klein · edición</option>
+            <option value="qwen-image">Qwen-Image</option>
+            <option value="wan-image">Wan-Image</option>
+            <option value="grok-imagine">Grok-Imagine</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="two-cols">
+        <div class="group">
+          <label for="size">Tamaño</label>
+          <select id="size">
+            <optgroup label="Cuadrados">
+              <option value="1024x1024" selected>1024 × 1024 · Cuadrado recomendado</option>
+              <option value="1080x1080">1080 × 1080 · Instagram cuadrado</option>
+              <option value="768x768">768 × 768 · Cuadrado ligero</option>
+              <option value="512x512">512 × 512 · Prueba rápida</option>
+            </optgroup>
+            <optgroup label="Verticales">
+              <option value="1080x1350">1080 × 1350 · Instagram vertical 4:5</option>
+              <option value="1024x1536">1024 × 1536 · Cartel vertical 2:3</option>
+              <option value="1080x1920">1080 × 1920 · Historia / Reel / TikTok</option>
+              <option value="768x1024">768 × 1024 · Vertical ligero 3:4</option>
+            </optgroup>
+            <optgroup label="Horizontales">
+              <option value="1920x1080">1920 × 1080 · Pantalla 16:9</option>
+              <option value="1600x900">1600 × 900 · Banner 16:9</option>
+              <option value="1200x628">1200 × 628 · Anuncio web</option>
+              <option value="1024x768">1024 × 768 · Horizontal 4:3</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="group">
+          <label for="quality">Calidad</label>
+          <select id="quality">
+            <option value="low">Baja · rápida</option>
+            <option value="medium" selected>Media · recomendada</option>
+            <option value="high">Alta · más detalle</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="group">
+        <label for="format">Respuesta</label>
+        <select id="format">
+          <option value="b64_json" selected>Base64 JSON</option>
+          <option value="url">URL</option>
+        </select>
+        <div class="hint">Base64 JSON permite mostrar y descargar la imagen directamente en esta página.</div>
+      </div>
+
+      <div class="group">
+        <label for="animal">Elemento principal / animal</label>
+        <input id="animal" value="un lobo plateado majestuoso" placeholder="Ej: un lobo plateado majestuoso" />
+      </div>
+
+      <div class="group hidden" id="uploadBlock">
+        <label>Imágenes de referencia</label>
+        <div class="upload" id="uploadArea" role="button" tabindex="0">
+          Arrastra imágenes aquí o haz clic<br />
+          <span class="hint">Máximo 5 imágenes. Formatos habituales: JPG, PNG o WEBP.</span>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" multiple hidden />
+        <div class="thumbs" id="thumbs"></div>
+
+        <div class="group" style="margin-top:0.9rem;margin-bottom:0">
+          <label for="referenceWeight">Peso de referencia</label>
+          <div class="range-row">
+            <input type="range" id="referenceWeight" min="30" max="95" value="70" step="5" />
+            <span class="range-value" id="referenceWeightValue">70%</span>
+          </div>
+          <div class="hint">Cuanto mayor sea el peso, más se conservará la imagen subida.</div>
+        </div>
+      </div>
+
+      <div class="group">
+        <label for="prompt">Prompt <span id="counter" class="counter">0 caracteres</span></label>
+        <textarea id="prompt" placeholder="Describe la imagen que quieres generar..."></textarea>
+        <div id="promptHelp" class="hint">El prompt del preset está optimizado para una generación estable.</div>
+      </div>
+
+      <button class="btn-primary" id="generateBtn" type="button">✨ Generar imagen</button>
+      <button class="btn-gold" id="downloadBtn" type="button">⬇️ Descargar imagen</button>
+      <div id="errorBox" class="message"></div>
+    </aside>
+
+    <main class="stage">
+      <div class="badge" id="stateBadge">Listo</div>
+      <div class="canvas" aria-live="polite">
+        <div class="loading" id="loading">
+          <div class="spinner" aria-hidden="true"></div>
+          <div style="color:var(--cyan);font-weight:800">Generando imagen...</div>
+          <div class="hint">El proceso puede tardar unos segundos.</div>
+        </div>
+        <div class="placeholder" id="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+          <p>Tu imagen aparecerá aquí</p>
+          <div class="hint">Relación de aspecto 1:1</div>
+        </div>
+        <img id="generatedImage" class="generated" alt="Imagen generada" />
+      </div>
+      <div class="credits">
+        Herramienta diseñada por el profesor <strong>Edgar Herrera</strong> con tecnología <a href="https://pollinations.ai/" target="_blank" rel="noopener">Pollinations</a> y apoyo de herramientas de IA.
+      </div>
+    </main>
+  </div>
+
+  <script>
+    'use strict';
+
+    const API_BASE = 'https://gen.pollinations.ai';
+    const STORAGE_KEY = 'POLLINATIONS_API_KEY';
+    const MAX_REFERENCE_IMAGES = 5;
+    const MAX_STABLE_PROMPT_LENGTH = 2400;
+
+    let currentMode = 'text';
+    let referenceFiles = [];
+    let currentImageUrl = '';
+    let previousTextModel = 'zimage';
+
+    const $ = (id) => document.getElementById(id);
+
+    const presets = {
+      cisneros: buildCisnerosPrompt,
+      custom: () => ''
+    };
+
+    function buildCisnerosPrompt() {
+      const styleOption = $('style').selectedOptions[0];
+      const style = styleOption ? styleOption.textContent.trim() : $('style').value;
+      const animal = $('animal').value.trim() || 'un lobo plateado majestuoso';
+      return `Square 1:1 ${style} style for Cisneros, Antioquia, Colombia. Create a premium tourism advertising poster with a modern immersive visitor center, elegant cyan holographic light, navy blue background, gold accents, tropical Andean mountains and warm cinematic atmosphere. Show recognizable local heritage in a clean composition: a white hillside church with a cross and bell tower, a historic wooden railway station, a vintage steam locomotive, a colorful railway linear park, natural river pools, and traditional panela sugar cane cauldrons. In the foreground, four diverse tourists admire the holographic displays with wonder and cultural pride. Include ${animal} as a subtle spiritual guardian of the place. High-end travel campaign, realistic materials, sharp details, balanced layout, premium Colombian tourism identity. Leave clear space at the top and bottom for title and slogan; do not add random logos, watermarks, distorted faces or unreadable text.`;
+    }
+
+    function getApiKey() {
+      return localStorage.getItem(STORAGE_KEY) || '';
+    }
+
+    function setApiKey(key) {
+      if (key) localStorage.setItem(STORAGE_KEY, key);
+      else localStorage.removeItem(STORAGE_KEY);
+    }
+
+    function buildHeaders(json) {
+      const headers = {};
+      const key = getApiKey();
+      if (json) headers['Content-Type'] = 'application/json';
+      if (key) headers.Authorization = `Bearer ${key}`;
+      return headers;
+    }
+
+    function init() {
+      $('apiKey').value = getApiKey();
+      updateKeyStatus();
+      applyPreset('cisneros');
+      bindEvents();
+      updatePromptCounter();
+      updateReferenceWeightDisplay();
+    }
+
+    function bindEvents() {
+      $('showKeyBtn').addEventListener('click', toggleKeyVisibility);
+      $('saveKeyBtn').addEventListener('click', saveKeyFromInput);
+      $('testKeyBtn').addEventListener('click', testKey);
+      $('clearKeyBtn').addEventListener('click', clearSavedKey);
+      $('textModeBtn').addEventListener('click', () => setMode('text'));
+      $('editModeBtn').addEventListener('click', () => setMode('edit'));
+      document.querySelectorAll('.preset-btn').forEach((button) => {
+        button.addEventListener('click', () => applyPreset(button.dataset.preset));
+      });
+      $('style').addEventListener('change', refreshActivePreset);
+      $('animal').addEventListener('input', refreshActivePreset);
+      $('model').addEventListener('change', handleModelChange);
+      $('prompt').addEventListener('input', updatePromptCounter);
+      $('referenceWeight').addEventListener('input', updateReferenceWeightDisplay);
+      $('uploadArea').addEventListener('click', () => $('fileInput').click());
+      $('uploadArea').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          $('fileInput').click();
+        }
+      });
+      $('fileInput').addEventListener('change', (event) => addReferenceFiles(event.target.files));
+      $('uploadArea').addEventListener('dragover', (event) => {
+        event.preventDefault();
+        $('uploadArea').classList.add('dragover');
+      });
+      $('uploadArea').addEventListener('dragleave', () => $('uploadArea').classList.remove('dragover'));
+      $('uploadArea').addEventListener('drop', (event) => {
+        event.preventDefault();
+        $('uploadArea').classList.remove('dragover');
+        addReferenceFiles(event.dataTransfer.files);
+      });
+      $('generateBtn').addEventListener('click', generateImage);
+      $('downloadBtn').addEventListener('click', downloadImage);
+    }
+
+    function toggleKeyVisibility() {
+      const input = $('apiKey');
+      input.type = input.type === 'password' ? 'text' : 'password';
+      $('showKeyBtn').textContent = input.type === 'password' ? '👁️ Ver' : '🙈 Ocultar';
+    }
+
+    function saveKeyFromInput() {
+      const key = $('apiKey').value.trim();
+      setApiKey(key);
+      updateKeyStatus();
+    }
+
+    function clearSavedKey() {
+      $('apiKey').value = '';
+      setApiKey('');
+      updateKeyStatus({ text: 'Key borrada de este navegador.', type: 'ok' });
+    }
+
+    function updateKeyStatus(message) {
+      const key = getApiKey();
+      const status = $('keyStatus');
+      if (message) {
+        status.textContent = message.text;
+        status.className = `status ${message.type}`;
+        return;
+      }
+      if (!key) {
+        status.textContent = 'No configurada. Introduce una API key para generar imágenes.';
+        status.className = 'status bad';
+      } else if (key.startsWith('pk_')) {
+        status.textContent = '✓ Key guardada en este navegador. Bórrala al terminar si el equipo es compartido.';
+        status.className = 'status ok';
+      } else if (key.startsWith('sk_')) {
+        status.textContent = 'Key sk_ guardada en este navegador. Trátala como secreta y bórrala al terminar si el equipo es compartido.';
+        status.className = 'status warn';
+      } else {
+        status.textContent = 'Key guardada en este navegador. Comprueba que sea una key válida de Pollinations.';
+        status.className = 'status warn';
+      }
+    }
+
+    async function testKey() {
+      saveKeyFromInput();
+      if (!getApiKey()) return;
+      updateKeyStatus({ text: 'Comprobando key...', type: 'warn' });
+      try {
+        const response = await fetch(`${API_BASE}/account/balance`, {
+          headers: buildHeaders(false)
+        });
+        const data = await parseResponse(response);
+        if (!response.ok) throw createHttpError(response.status, data);
+        updateKeyStatus({ text: '✓ Key validada correctamente.', type: 'ok' });
+      } catch (error) {
+        console.error(error);
+        updateKeyStatus({ text: `No se pudo validar la key: ${cleanErrorMessage(error)}`, type: 'bad' });
+      }
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      $('textModeBtn').classList.toggle('active', mode === 'text');
+      $('editModeBtn').classList.toggle('active', mode === 'edit');
+      $('uploadBlock').classList.toggle('hidden', mode === 'text');
+
+      if (mode === 'edit') {
+        previousTextModel = $('model').value;
+        const editModels = ['kontext', 'seedream', 'nanobanana', 'klein', 'gptimage'];
+        if (!editModels.includes($('model').value)) $('model').value = 'kontext';
+      } else if ($('model').value === 'kontext') {
+        $('model').value = previousTextModel && previousTextModel !== 'kontext' ? previousTextModel : 'zimage';
+      }
+      updatePromptCounter();
+    }
+
+
+    function updateReferenceWeightDisplay() {
+      $('referenceWeightValue').textContent = `${$('referenceWeight').value}%`;
+    }
+
+    function getActivePreset() {
+      return document.querySelector('.preset-btn.active')?.dataset.preset || 'custom';
+    }
+
+    function applyPreset(name) {
+      document.querySelectorAll('.preset-btn').forEach((button) => {
+        button.classList.toggle('active', button.dataset.preset === name);
+      });
+      $('prompt').value = presets[name] ? presets[name]() : '';
+      updatePromptCounter();
+    }
+
+    function refreshActivePreset() {
+      const active = getActivePreset();
+      if (active !== 'custom' && presets[active]) $('prompt').value = presets[active]();
+      updatePromptCounter();
+    }
+
+    function handleModelChange() {
+      if (currentMode === 'text') previousTextModel = $('model').value;
+      updatePromptCounter();
+    }
+
+    function updatePromptCounter() {
+      const length = $('prompt').value.length;
+      const counter = $('counter');
+      counter.textContent = `${length} caracteres`;
+      counter.className = `counter${length > 2600 ? ' bad' : length > 1800 ? ' warn' : ''}`;
+
+      if (length > 2600) {
+        $('promptHelp').textContent = 'Prompt muy largo. Para mayor estabilidad, reduce detalles o usa un tamaño menor.';
+      } else if ($('model').value === 'flux' && length > 1600) {
+        $('promptHelp').textContent = 'Flux puede ser sensible a prompts largos. ZImage suele ser más estable para este cartel.';
+      } else {
+        $('promptHelp').textContent = 'Prompt dentro de un rango estable para generación.';
+      }
+    }
+
+    function addReferenceFiles(fileList) {
+      const incoming = Array.from(fileList || []).filter((file) => file.type.startsWith('image/'));
+      if (referenceFiles.length + incoming.length > MAX_REFERENCE_IMAGES) {
+        showError(`Puedes usar un máximo de ${MAX_REFERENCE_IMAGES} imágenes de referencia.`);
+        return;
+      }
+      referenceFiles.push(...incoming);
+      renderReferenceThumbs();
+    }
+
+    function renderReferenceThumbs() {
+      const container = $('thumbs');
+      container.innerHTML = '';
+      referenceFiles.forEach((file, index) => {
+        const box = document.createElement('div');
+        box.className = 'thumb';
+
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.alt = file.name || `Imagen ${index + 1}`;
+
+        const remove = document.createElement('div');
+        remove.className = 'remove-thumb';
+        remove.textContent = '×';
+        remove.title = 'Quitar imagen';
+        remove.addEventListener('click', () => {
+          referenceFiles.splice(index, 1);
+          renderReferenceThumbs();
+        });
+
+        box.append(img, remove);
+        container.append(box);
+      });
+    }
+
+    function getPromptForRequest() {
+      let prompt = $('prompt').value.trim();
+      if (!prompt) throw new Error('El prompt está vacío.');
+
+      if (prompt.startsWith('{')) {
+        try {
+          const parsed = JSON.parse(prompt);
+          if (typeof parsed.prompt === 'string') prompt = parsed.prompt.trim();
+        } catch (_) {
+          // El usuario puede escribir llaves como parte de un prompt normal.
+        }
+      }
+
+      if (prompt.length > MAX_STABLE_PROMPT_LENGTH) {
+        prompt = prompt.slice(0, MAX_STABLE_PROMPT_LENGTH);
+        const lastStop = Math.max(prompt.lastIndexOf('.'), prompt.lastIndexOf(';'));
+        if (lastStop > 900) prompt = prompt.slice(0, lastStop + 1);
+        prompt += ' Clean coherent composition, no clutter, no watermark, no distorted people.';
+      }
+      return prompt;
+    }
+
+    async function generateImage() {
+      clearError();
+      saveKeyFromInput();
+
+      if (!getApiKey()) {
+        showError('Falta API key. Introduce una key de Pollinations antes de generar.');
+        return;
+      }
+
+      setBusy(true);
+      try {
+        if (currentMode === 'edit') await generateImageEdit();
+        else await generateTextImage();
+      } catch (error) {
+        console.error(error);
+        showError(formatErrorForUser(error));
+        $('stateBadge').textContent = 'Error';
+        $('placeholder').style.display = 'block';
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function generateTextImage() {
+      const prompt = getPromptForRequest();
+      const body = {
+        prompt,
+        model: $('model').value,
+        n: 1,
+        size: $('size').value,
+        response_format: $('format').value,
+        quality: $('quality').value,
+        user: 'cisneros-carteles-app',
+        safe: false
+      };
+
+      const response = await fetch(`${API_BASE}/v1/images/generations`, {
+        method: 'POST',
+        headers: buildHeaders(true),
+        body: JSON.stringify(body)
+      });
+
+      const data = await parseResponse(response);
+      if (!response.ok) throw createHttpError(response.status, data);
+      showGeneratedImage(data);
+    }
+
+    function buildReferencePreservationInstruction(weight) {
+      if (weight >= 80) {
+        return 'Reference preservation: very high. Keep the original structure, main subject, composition and identity strongly recognizable; apply only controlled advertising improvements.';
+      }
+      if (weight >= 60) {
+        return 'Reference preservation: balanced. Keep the main subject and important visual identity recognizable while improving lighting, composition and advertising style.';
+      }
+      return 'Reference preservation: creative. Use the reference as inspiration, but allow stronger visual transformation and redesign.';
+    }
+
+    async function generateImageEdit() {
+      if (referenceFiles.length === 0) {
+        throw new Error('En modo Imagen a imagen debes adjuntar al menos una imagen de referencia.');
+      }
+
+      const prompt = getPromptForRequest();
+      const referenceWeight = Number($('referenceWeight').value || 70);
+      const preservationInstruction = buildReferencePreservationInstruction(referenceWeight);
+      const form = new FormData();
+      referenceFiles.forEach((file) => form.append('image', file, file.name || 'referencia.png'));
+      form.append('prompt', `${prompt}
+
+${preservationInstruction}`);
+      form.append('model', $('model').value || 'kontext');
+      form.append('size', $('size').value);
+      form.append('response_format', $('format').value);
+      form.append('quality', $('quality').value);
+      form.append('user', 'cisneros-carteles-app');
+      form.append('safe', 'false');
+
+      const response = await fetch(`${API_BASE}/v1/images/edits`, {
+        method: 'POST',
+        headers: buildHeaders(false),
+        body: form
+      });
+
+      const data = await parseResponse(response);
+      if (!response.ok) throw createHttpError(response.status, data);
+      showGeneratedImage(data);
+    }
+
+    async function parseResponse(response) {
+      const text = await response.text();
+      if (!text) return null;
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        return text;
+      }
+    }
+
+    function showGeneratedImage(data) {
+      let imageUrl = '';
+      if (data?.data?.[0]?.b64_json) {
+        imageUrl = `data:image/png;base64,${data.data[0].b64_json}`;
+      } else if (data?.data?.[0]?.url) {
+        imageUrl = data.data[0].url;
+      } else if (data?.url) {
+        imageUrl = data.url;
+      } else if (typeof data === 'string' && /^https?:\/\//.test(data)) {
+        imageUrl = data;
+      }
+
+      if (!imageUrl) throw new Error('La respuesta no contiene una imagen reconocible.');
+
+      currentImageUrl = imageUrl;
+      $('generatedImage').src = imageUrl;
+      $('generatedImage').classList.add('active');
+      $('placeholder').style.display = 'none';
+      $('downloadBtn').classList.add('active');
+      $('stateBadge').textContent = '✓ Imagen generada';
+    }
+
+    function createHttpError(status, data) {
+      const error = new Error(extractServerMessage(data) || `HTTP ${status}`);
+      error.status = status;
+      error.data = data;
+      return error;
+    }
+
+    function extractServerMessage(data) {
+      if (!data) return '';
+      if (typeof data === 'string') return data;
+      return data?.error?.message || data?.message || data?.error || JSON.stringify(data);
+    }
+
+    function cleanErrorMessage(error) {
+      const message = error?.message || String(error);
+      return message.length > 360 ? `${message.slice(0, 360)}...` : message;
+    }
+
+    function formatErrorForUser(error) {
+      const status = error.status;
+      const serverMessage = cleanErrorMessage(error);
+
+      if (status === 400) {
+        return `La petición fue rechazada por el proveedor de imagen. Prueba con ZImage, tamaño 768×768 o un prompt más corto.\n\nDetalle: ${serverMessage}`;
+      }
+      if (status === 401) {
+        return 'La API key no es válida o no está autorizada. Revisa la key guardada.';
+      }
+      if (status === 402) {
+        return 'La API key es válida, pero no tiene saldo o presupuesto disponible.';
+      }
+      if (status === 429) {
+        return 'Se ha alcanzado un límite de uso temporal. Inténtalo de nuevo más tarde.';
+      }
+      if (status >= 500) {
+        return `El proveedor de imagen ha devuelto un error temporal.\n\nDetalle: ${serverMessage}`;
+      }
+      return `No se pudo generar la imagen.\n\nDetalle: ${serverMessage}`;
+    }
+
+    function setBusy(isBusy) {
+      $('generateBtn').disabled = isBusy;
+      $('generateBtn').textContent = isBusy ? '⏳ Generando...' : '✨ Generar imagen';
+      $('loading').classList.toggle('active', isBusy);
+      if (isBusy) {
+        $('generatedImage').classList.remove('active');
+        $('downloadBtn').classList.remove('active');
+        $('stateBadge').textContent = 'Generando...';
+      }
+    }
+
+    function showError(message) {
+      $('errorBox').textContent = message;
+      $('errorBox').classList.add('active');
+    }
+
+    function clearError() {
+      $('errorBox').textContent = '';
+      $('errorBox').classList.remove('active');
+    }
+
+    function downloadImage() {
+      if (!currentImageUrl) return;
+      const link = document.createElement('a');
+      link.href = currentImageUrl;
+      link.download = `cartel-cisneros-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
